@@ -1,0 +1,34 @@
+{
+  "name": "AWS Guide",
+  "version": "2.1",
+  "description": "Get guided assistance for AWS tasks with visual highlighting",
+  "manifest_version": 3,
+  "permissions": ["storage", "activeTab", "scripting", "tabs"],
+  "host_permissions": ["https://*.aws.amazon.com/*", "https://*.amazon.com/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://*.aws.amazon.com/*", "https://*.amazon.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src https://generativelanguage.googleapis.com"
+  }
+}

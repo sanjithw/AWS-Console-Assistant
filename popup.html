@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS Assistant</title>
+    <style>
+        :root {
+            --aws-orange: #FF9900;
+            --aws-blue: #232F3E;
+            --light-gray: #f8f9fa;
+            --border-color: #eaeded;
+            --text-primary: #16191f;
+            --text-secondary: #5f6b7a;
+            --success: #108548;
+            --warning: #945703;
+            --error: #b92d2b;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Amazon Ember', 'Segoe UI', sans-serif;
+            width: 380px;
+            background: #ffffff;
+            color: var(--text-primary);
+        }
+        
+        .container {
+            padding: 16px;
+        }
+        
+        .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .logo {
+            width: 28px;
+            height: 28px;
+            margin-right: 12px;
+        }
+        
+        .header-content {
+            flex: 1;
+        }
+        
+        h1 {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--aws-blue);
+            margin-bottom: 2px;
+        }
+        
+        .subtitle {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: var(--text-primary);
+        }
+        
+        input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        
+        input:focus {
+            border-color: var(--aws-orange);
+            box-shadow: 0 0 0 2px rgba(255, 153, 0, 0.2);
+            outline: none;
+        }
+        
+        .api-key-wrapper {
+            position: relative;
+        }
+        
+        .api-key-info {
+            position: absolute;
+            right: 8px;
+            top: 8px;
+            color: var(--text-secondary);
+            font-size: 12px;
+            cursor: pointer;
+        }
+        
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--aws-orange);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        button:hover {
+            background-color: #ec7211;
+        }
+        
+        button:disabled {
+            background-color: #E0E0E0;
+            color: #9E9E9E;
+            cursor: not-allowed;
+        }
+        
+        .loading {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 153, 0, 0.2);
+            border-top: 3px solid var(--aws-orange);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 15px auto;
+        }
+        
+        .status {
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            margin: 12px 0;
+            display: none;
+        }
+        
+        .status.success {
+            background-color: rgba(16, 133, 72, 0.1);
+            color: var(--success);
+            border-left: 3px solid var(--success);
+            display: block;
+        }
+        
+        .status.error {
+            background-color: rgba(185, 45, 43, 0.1);
+            color: var(--error);
+            border-left: 3px solid var(--error);
+            display: block;
+        }
+        
+        .output-container {
+            margin-top: 16px;
+            position: relative;
+        }
+        
+        .output-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 8px;
+        }
+        
+        .reset-button {
+            background: none;
+            color: var(--text-secondary);
+            border: none;
+            font-size: 12px;
+            padding: 4px 8px;
+            width: auto;
+            cursor: pointer;
+            display: none;
+        }
+        
+        .reset-button:hover {
+            color: var(--aws-blue);
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        
+        #output {
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 12px;
+            font-size: 14px;
+            line-height: 1.5;
+            max-height: 300px;
+            overflow-y: auto;
+            background-color: white;
+        }
+        
+        .step-container {
+            margin-bottom: 14px;
+            padding-left: 28px;
+            position: relative;
+        }
+        
+        .step-number {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 20px;
+            height: 20px;
+            background-color: var(--aws-orange);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .step-content {
+            margin-bottom: 4px;
+        }
+        
+        .step-status {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        .step-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 12px;
+        }
+        
+        .nav-button {
+            background: none;
+            border: 1px solid var(--border-color);
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            width: auto;
+        }
+        
+        .nav-button.primary {
+            background-color: var(--aws-orange);
+            color: white;
+            border-color: var(--aws-orange);
+        }
+        
+        .step-counter {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        .intro-text {
+            font-size: 14px;
+            margin-bottom: 12px;
+            line-height: 1.5;
+            color: var(--text-primary);
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="icons/icon48.png" alt="AWS Guide Logo" class="logo">
+            <div class="header-content">
+                <h1>AWS Console Assistant</h1>
+                <div class="subtitle">Get step-by-step guidance for AWS Console tasks</div>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="apiKey">Gemini API Key</label>
+            <div class="api-key-wrapper">
+                <input type="password" id="apiKey" placeholder="Enter your API key">
+                <span class="api-key-info" title="Required to generate task guidance">ⓘ</span>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="userPrompt">What AWS task can I help with?</label>
+            <input type="text" id="userPrompt" placeholder="e.g., How to create an S3 bucket">
+        </div>
+        
+        <button id="fetchAWSData">Get Step-by-Step Guide</button>
+        <div class="loading" id="loadingSpinner"></div>
+        <div id="connectionStatus" class="status"></div>
+        
+        <div class="output-container">
+            <div class="output-actions">
+                <button id="resetGuide" class="reset-button">Reset guide</button>
+            </div>
+            <div id="output"></div>
+        </div>
+    </div>
+    <script src="popup.js"></script>
+</body>
+</html>
